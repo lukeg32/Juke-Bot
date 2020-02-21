@@ -7,8 +7,8 @@ ydl_opts = {
         'preferredcodec': 'mp3',
         'preferredquality': '192',
     }],
-    'outtmpl': '~/Programs/Juke-Box/music/%(title)s.%(ext)s'
+    'outtmpl': './%(title)s.%(ext)s'
 }
 
 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-    ydl.download(['https://www.youtube.com/watch?v=Cm-Ndlse8Yw'])
+    ydl.download(['https://www.youtube.com/watch?v=MB0vRra5fUI&list=PLOnYSAQPTwGRJpN0n6UOp-w4t9HwIRMAP&index=2&t=0s'])
