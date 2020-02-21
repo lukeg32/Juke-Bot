@@ -11,7 +11,7 @@ PREFIX = os.getenv('PREFIX')
 client = commands.Bot(command_prefix = PREFIX)
 
 channel = None
-path = '/home/f3rahgo/Programs/Juke-Box/music/'
+path = './music/'
 print(os.listdir(path))
 song = []
 for i in os.listdir(path):
