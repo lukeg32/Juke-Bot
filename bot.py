@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+if (TOKEN == 'NO'):
+    print(sys.argv)
+    TOKEN = sys.argv[1]
 GUILD = os.getenv('DISCORD_GUILD')
 PREFIX = os.getenv('PREFIX')
 client = commands.Bot(command_prefix = PREFIX)
@@ -24,8 +27,8 @@ print(song)
 @client.event
 async def on_ready():
     guild = discord.utils.get(client.guilds, name=GUILD)
-    sutats = discord.Status.idle
-    game = discord.Game('WIth the api')
+    sutats = discord.Status.online
+    game = discord.Game('music')
     await client.change_presence(status=sutats, activity=game)
     print(
         f'{client.user} has connected to Discord!\n'
