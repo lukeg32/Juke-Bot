@@ -1,28 +1,51 @@
 import os
 import sys
+import json
 import discord
+import subprocess
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-if (TOKEN == 'NO'):
-    print(sys.argv)
-    TOKEN = sys.argv[1]
 GUILD = os.getenv('DISCORD_GUILD')
 PREFIX = os.getenv('PREFIX')
 client = commands.Bot(command_prefix = PREFIX)
 
 channel = None
 path = './music/'
-print(os.listdir(path))
+#print(os.listdir(path))
 song = []
 for i in os.listdir(path):
     if i[-3:] == 'mp3':
         song.append(i)
-print(song)
+#print(song)
+
+def loadQueue():
+    with open('queue.json', 'r') as inFile:
+        queue = json.load(inFile)
+
+    return queue
+
+def writeQueue(queue):
+    with open('queue.json', 'w') as outFile:
+        outFile.write(json.dumps(queue, indent=4, sort_keys=True))
+
+def loadMusic():
+    subprocess.call(['python3', 'music/musicLogger.py', 'log'])
+
+def makeQueue():
+    subprocess.call(['python3', 'music/musicLogger.py', 'queue'])
+
 
 #client = discord.Client()
+@client.command
+async def read():
+    loadMusic()
+
+@client.command
+async def write():
+    makeQueue()
 
 @client.event
 async def on_ready():
