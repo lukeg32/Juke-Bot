@@ -6,6 +6,8 @@ import subprocess
 from discord.ext import commands
 from dotenv import load_dotenv
 
+#discord.opus.load_opus('opus')
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
@@ -22,30 +24,55 @@ for i in os.listdir(path):
 #print(song)
 
 def loadQueue():
-    with open('queue.json', 'r') as inFile:
+    with open(path + 'queue.json', 'r') as inFile:
         queue = json.load(inFile)
 
     return queue
 
 def writeQueue(queue):
-    with open('queue.json', 'w') as outFile:
+    with open(path + 'queue.json', 'w') as outFile:
         outFile.write(json.dumps(queue, indent=4, sort_keys=True))
 
 def loadMusic():
-    subprocess.call(['python3', 'music/musicLogger.py', 'log'])
+    subprocess.call(['python3', 'music/musicLogger.py', 'log', 'music/'])
 
 def makeQueue():
-    subprocess.call(['python3', 'music/musicLogger.py', 'queue'])
+    subprocess.call(['python3', 'music/musicLogger.py', 'queue', 'music/'])
+
+
+def getSong():
+    queue = loadQueue()
+
+    return queue['cur']
+
+def nextSong():
+    again = True
+
+    queue = loadQueue()
+
+    past = queue['past']
+    cur = queue['cur']
+    songs = queue['songs']
+
+    if len(songs) == 0:
+        again = False
+
+    else:
+        past.append(cur)
+        cur = songs[0]
+        songs.pop(0)
+
+        queue['past'] = past
+        queue['cur'] = cur
+        queue['songs'] = songs
+
+        writeQueue(queue)
+
+    return again
+
 
 
 #client = discord.Client()
-@client.command
-async def read():
-    loadMusic()
-
-@client.command
-async def write():
-    makeQueue()
 
 @client.event
 async def on_ready():
@@ -74,6 +101,13 @@ async def on_ready():
 #        await message.channel.send('Thou hast smote me')
 #        sys.exit("I have become deaded.")
 
+@client.command()
+async def read(ctx):
+    loadMusic()
+
+@client.command()
+async def write(ctx):
+    makeQueue()
 
 @client.command()
 async def kill(ctx):
@@ -81,18 +115,43 @@ async def kill(ctx):
     sys.exit("I have become deaded")
 
 @client.command()
+async def next(ctx):
+    print(ctx.voice_client)
+    again = nextSong()
+    if again:
+        #ctx.voice_client.stop()
+        if channel.is_playing():
+            channel.stop()
+        print(channel.is_playing())
+        await play(ctx)
+
+    else:
+        await ctx.send("Queue ended")
+
+
+
+@client.command()
+async def isP(ctx):
+    await ctx.send(channel.is_playing())
+
+@client.command()
 async def join(ctx):
     global channel
-    channel = ctx.author.voice.channel
-    await channel.connect()
+    channel = await ctx.author.voice.channel.connect()
 
 @client.command()
 async def play(ctx):
     if channel != None:
-        source = path + song[0]
-        print(os.listdir(path))
-        ctx.voice_client.play(discord.FFmpegPCMAudio(source), after=lambda e:
-            print('done', e))
+        source = path + getSong()
+        print('::::playing: ' + source)
+        source = discord.FFmpegPCMAudio(source)
+        source = discord.PCMVolumeTransformer(source)
+        #print(os.listdir(path))
+
+        print(channel.is_playing())
+        channel.play(source, after=lambda e: print("done", e))
+        channel.source = discord.PCMVolumeTransformer(channel.source)
+
     else:
         print('not connected')
 
@@ -105,7 +164,7 @@ async def pause(ctx):
         return
 
     vc.pause()
-    ctx.send(f'**`{ctx.author}`**: Paused song!')
+    await ctx.send(f'**`{ctx.author}`**: Paused song!')
 
 @client.command()
 async def add(ctx):
