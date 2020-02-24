@@ -1,0 +1,8 @@
+pause music when no none bots are in the voice channel,
+resume music when a player joins
+
+stream music, 
+implement a download function to the musicLogger.py
+
+make controls
+queue view
