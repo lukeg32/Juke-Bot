@@ -337,7 +337,7 @@ async def pause(ctx):
     vc = ctx.voice_client
 
     if vc.is_paused():
-        ctx.send("Already paused")
+        await ctx.send("Already paused")
         return
 
     vc.pause()
