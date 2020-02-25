@@ -252,7 +252,7 @@ async def next(ctx):
 async def cur(ctx):
     txt = "Not Playing"
     if voiceChannel.is_playing():
-        txt = "Playing getSong()[:-4])"
+        txt = "Playing " + getSong()[:-4])
 
     await ctx.send(txt)
 
