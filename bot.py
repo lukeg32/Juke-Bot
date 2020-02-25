@@ -252,7 +252,7 @@ async def next(ctx):
 async def cur(ctx):
     txt = "Not Playing"
     if voiceChannel.is_playing():
-        txt = "Playing " + getSong()[:-4])
+        txt = "Playing " + getSong()[:-4]
 
     await ctx.send(txt)
 
@@ -325,7 +325,7 @@ async def resume(ctx):
     vc = ctx.voice_client
 
     if not vc.is_paused():
-        ctx.send("Not paused")
+        await ctx.send("Not paused")
         return
 
     vc.resume()
