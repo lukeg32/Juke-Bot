@@ -266,6 +266,66 @@ async def cur(ctx):
 
     await ctx.send(txt)
 
+#def makeEmbed(
+
+@client.command()
+async def show(ctx):
+    msg = {
+            "title": "The Queue",
+            "color": 9849600,
+            "fields": []
+          }
+
+    em = discord.Embed(title="  "*20+ "Queue:", color=9849600)
+    queueView = ""
+
+
+    shown = 7
+    pastlen = 3
+    futurelen = 3
+
+    queue = loadQueue()
+
+    cur = queue['cur']
+    past = queue['past']
+    future = queue['songs']
+
+    pastmax = len(past) - pastlen
+    futuremax = len(future) - futurelen
+
+    if pastmax < 0:
+        futurelen += abs(pastmax)
+
+    if futuremax < 0:
+        pastlen += abs(futuremax)
+
+
+    length = len(past)
+    if len(past) > pastlen:
+        length = pastlen
+
+    for i in range(length):
+        shown -= 1
+        queueView += "|%d |    %s\n" % (i - 3, past[i][:-4])
+
+    shown -= 1
+    queueView += "**| 0 |    " + cur + "**\n"
+
+    length = len(future)
+    if length > futurelen:
+        length = futurelen
+
+    for i in range(length):
+        shown -= 1
+        queueView += "| %d |    %s\n" % (i + 1, future[i][:-4])
+
+    #print(msg)
+    #await ctx.send(json.stringify(msg))
+    em.add_field(name='-' * 60, value=queueView, inline=False)
+    await ctx.send(embed=em)
+
+
+
 # joins the voice channel user is in, saves textchannel for future msgs
 @client.command()
 async def join(ctx):
@@ -292,6 +352,9 @@ async def playSong(ctx):
 
     else:
         print('not connected')
+
+# the commands that handle going back a song
+# goes back a song
 def previous(queue):
 
     cur = queue['cur']
