@@ -63,11 +63,14 @@ async def audio_player_task():
 
         if current[1] == "None":
             await playSong(textChannel)
-        else:
+        elif current[1] == 'url':
             await textChannel.send('TODO')
             pass
+        else:
+            print(current)
 
-        await textChannel.send('Now playing: {}'.format(current[0][:-4]))
+        if current[0][:-4] != "":
+            await textChannel.send('Now playing: {}'.format(current[0][:-4]))
 
         print('Playing and wating')
         await play_next_song.wait()
@@ -128,6 +131,7 @@ def getSong():
     return queue['cur']
 
 def done():
+    # TODO add a queue ended msg
     again = True
 
     queue = loadQueue()
@@ -149,10 +153,13 @@ async def nextSong():
     cur = queue['cur']
     songs = queue['songs']
 
+    #print(json.dumps(queue, indent=4, sort_keys=True))
+
     #print(songs)
 
     if again:
-        past.append(cur)
+        if cur != "":
+            past.append(cur)
         cur = songs[0]
         songs.pop(0)
 
@@ -161,8 +168,10 @@ async def nextSong():
         queue['songs'] = songs
 
         writeQueue(queue)
+        #print(json.dumps(queue, indent=4, sort_keys=True))
 
         await addToQueue(cur, 'None')
+
 
     return again
 
@@ -283,7 +292,6 @@ async def playSong(ctx):
 
     else:
         print('not connected')
-
 def previous(queue):
 
     cur = queue['cur']
@@ -293,15 +301,23 @@ def previous(queue):
     #print(past)
     #print(songs)
 
-    if cur != '':
+    #print(json.dumps(queue, indent=4, sort_keys=True))
+
+    if len(past) == 0:
+        print('no past')
+        songs.insert(0, cur)
+        queue['cur'] = ''
+        queue['past'] = []
+
+    elif cur != '':
+        print("cur isn't null")
         songs.insert(0, cur)
 
-        if past != []:
-            cur = past.pop(len(past) - 1)
-        else:
-            cur = ''
+        print(past[-1])
+        queue['cur'] = past[-1]
+        past.pop(-1)
 
-        print(queue['cur'])
+    #print(json.dumps(queue, indent=4, sort_keys=True))
 
     return queue
 
@@ -311,13 +327,16 @@ async def last(ctx):
     queue = loadQueue()
 
     print('going back')
-    queue = previous(queue)
-    queue = previous(queue)
+    if len(queue['past']) > 0:
+        queue = previous(queue)
+        queue = previous(queue)
 
-    writeQueue(queue)
+        writeQueue(queue)
 
-    voiceChannel.stop()
-
+        voiceChannel.stop()
+    else:
+        print('trying to do the impossible')
+        await ctx.send('Your at the begining')
 
 
 # resumes a paused song
