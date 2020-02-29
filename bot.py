@@ -226,6 +226,7 @@ async def write(ctx):
 # should kill the bot
 @client.command()
 async def kill(ctx):
+    await leave(ctx)
     await ctx.channel.send('Thou hast smote me.')
     sys.exit("I have become deaded")
     sys.exit("I should be dead rn")
