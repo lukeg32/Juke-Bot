@@ -124,12 +124,14 @@ def loadMusic():
 def makeQueue():
     subprocess.call(['python3', 'music/musicLogger.py', 'queue', 'music/'])
 
+
 # gets the cur song from queue
 def getSong():
     queue = loadQueue()
 
     return queue['cur']
 
+# checks if anything is left
 def done():
     # TODO add a queue ended msg
     again = True
@@ -142,7 +144,7 @@ def done():
     return again
 
 
-async def nextSong():
+async def nextSong(add=True):
     again = done()
 
     queue = loadQueue()
@@ -170,7 +172,8 @@ async def nextSong():
         writeQueue(queue)
         #print(json.dumps(queue, indent=4, sort_keys=True))
 
-        await addToQueue(cur, 'None')
+        if add:
+            await addToQueue(cur, 'None')
 
 
     return again
@@ -249,9 +252,9 @@ async def next(ctx):
 
     print(again)
     if again:
+        #await nextSong()
         if voiceChannel.is_playing():
             voiceChannel.stop()
-        print(voiceChannel.is_playing())
         #await playSong(ctx)
 
     else:
@@ -266,29 +269,13 @@ async def cur(ctx):
 
     await ctx.send(txt)
 
-def showHelper(arr, amount, numbers, queueView, shown):
-
-    if length > amount:
-        length = amount
-
-    for i in range(length):
-        shown -= 1
-        numbers += i + 1 + "\n"
-        queueView += "%s\n" % arr[i][:-4]
-
-    return (numbers, queueView, shown)
-
-@client.command()
-async def show(ctx):
+def makeQueueEmbed(shown):
     em = discord.Embed(title="  "*20+ "Queue:", color=9849600)
     queueView = ""
     numbers = ""
 
-    maxLengthName = 0
-
-    shown = 7
-    pastlen = 3
-    futurelen = 3
+    pastlen = (shown - 1) // 2
+    futurelen = (shown -1) // 2
 
     queue = loadQueue()
     cur = queue['cur']
@@ -311,18 +298,14 @@ async def show(ctx):
 
     for i in range(length):
         shown -= 1
-        numbers += "%d\n" % (i - 3)
-        queueView += "%s\n" % past[-3 + i][:-4]
+        numbers += "%d\n" % (i - length)
+        queueView += "%s\n" % past[-length + i][:-4]
 
-        if len(past[i][:-4]) > maxLengthName:
-            maxLengthName = len(past[-3 - i][:-4])
 
 
     shown -= 1
     numbers += "**  0**\n"
     queueView += "**" + cur[:-4] + "**\n"
-    if len(cur[:-4]) > maxLengthName:
-            maxLengthName = len(cur[:-4])
 
 
     length = len(future)
@@ -334,18 +317,54 @@ async def show(ctx):
         numbers += "  %d\n" % (i + 1)
         queueView += "%s\n" % future[i][:-4]
 
-        if len(future[i][:-4]) > maxLengthName:
-            maxLengthName = len(future[i][:-4])
 
 
     #print(msg)
     #await ctx.send(json.stringify(msg))
-    header = "__" + "Name:" + (' ' * (int)(maxLengthName * 1.5)) + "__"
+    header = "__Name:" + (' ' * 80) + "%d:%d__" % (-len(past), len(future))
     em.add_field(name="__ # __", value=numbers, inline=True)
     em.add_field(name=header, value=queueView, inline=True)
-    await ctx.send(embed=em)
+
+    return em
 
 
+@client.command()
+async def show(ctx):
+    await ctx.send(embed=makeQueueEmbed(7))
+
+@client.command()
+async def q(ctx):
+    queue = loadQueue()
+    args = ctx.message.content.split(" ")[1:]
+    selection = int(args[0])
+    print(selection)
+
+    if selection > 0:
+        #await ctx.send(queue['past'][selection])
+
+        for i in range(abs(selection)):
+            await nextSong(add=False)
+
+        await show(ctx)
+
+        await play(ctx)
+        voiceChannel.stop()
+
+    elif selection < 0:
+        #await ctx.send(queue['songs'][selection - 1])
+
+        for i in range(selection):
+            queue = previous(queue)
+
+        writeQueue(queue)
+
+        await show(ctx)
+
+        await play(ctx)
+
+        voiceChannel.stop()
+    else:
+        await ctx.send('You are an absolute moron')
 
 # joins the voice channel user is in, saves textchannel for future msgs
 @client.command()
