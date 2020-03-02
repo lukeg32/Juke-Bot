@@ -266,26 +266,31 @@ async def cur(ctx):
 
     await ctx.send(txt)
 
-#def makeEmbed(
+def showHelper(arr, amount, numbers, queueView, shown):
+
+    if length > amount:
+        length = amount
+
+    for i in range(length):
+        shown -= 1
+        numbers += i + 1 + "\n"
+        queueView += "%s\n" % arr[i][:-4]
+
+    return (numbers, queueView, shown)
 
 @client.command()
 async def show(ctx):
-    msg = {
-            "title": "The Queue",
-            "color": 9849600,
-            "fields": []
-          }
-
     em = discord.Embed(title="  "*20+ "Queue:", color=9849600)
     queueView = ""
+    numbers = ""
 
+    maxLengthName = 0
 
     shown = 7
     pastlen = 3
     futurelen = 3
 
     queue = loadQueue()
-
     cur = queue['cur']
     past = queue['past']
     future = queue['songs']
@@ -306,10 +311,19 @@ async def show(ctx):
 
     for i in range(length):
         shown -= 1
-        queueView += "|%d |    %s\n" % (i - 3, past[i][:-4])
+        numbers += "%d\n" % (i - 3)
+        queueView += "%s\n" % past[-3 + i][:-4]
+
+        if len(past[i][:-4]) > maxLengthName:
+            maxLengthName = len(past[-3 - i][:-4])
+
 
     shown -= 1
-    queueView += "**| 0 |    " + cur + "**\n"
+    numbers += "**  0**\n"
+    queueView += "**" + cur[:-4] + "**\n"
+    if len(cur[:-4]) > maxLengthName:
+            maxLengthName = len(cur[:-4])
+
 
     length = len(future)
     if length > futurelen:
@@ -317,11 +331,18 @@ async def show(ctx):
 
     for i in range(length):
         shown -= 1
-        queueView += "| %d |    %s\n" % (i + 1, future[i][:-4])
+        numbers += "  %d\n" % (i + 1)
+        queueView += "%s\n" % future[i][:-4]
+
+        if len(future[i][:-4]) > maxLengthName:
+            maxLengthName = len(future[i][:-4])
+
 
     #print(msg)
     #await ctx.send(json.stringify(msg))
-    em.add_field(name='-' * 60, value=queueView, inline=False)
+    header = "__" + "Name:" + (' ' * (int)(maxLengthName * 1.5)) + "__"
+    em.add_field(name="__ # __", value=numbers, inline=True)
+    em.add_field(name=header, value=queueView, inline=True)
     await ctx.send(embed=em)
 
 
