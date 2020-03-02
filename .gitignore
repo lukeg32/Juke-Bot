@@ -3,3 +3,5 @@
 *.mp3
 *.vim
 music/queue.json
+music/musicList.json
+
