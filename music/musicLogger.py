@@ -4,6 +4,10 @@ import json
 
 path = ''
 
+#TODO make a shuffler
+def shuffle(arr):
+    pass
+
 def logMusic():
     print('Logging music to %smusicList.json' % path)
 
@@ -13,6 +17,8 @@ def logMusic():
     for i in dir:
         if i[-3:] == 'mp3':
             songs.append(i)
+
+    shuffle(songs)
 
     musicList = {"cur": None, "songs": songs, 'past': []}
 
