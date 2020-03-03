@@ -80,11 +80,11 @@ async def audio_player_task():
         if normalNext:
             await nextSong()
 
-        normalNext = False
+        normalNext = True
 def toggle_next():
     global normalNext
     client.loop.call_soon_threadsafe(play_next_song.set)
-    normalNext = True
+    #normalNext = True
 
 
 @client.command()
