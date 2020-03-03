@@ -469,7 +469,24 @@ async def pause(ctx):
 # downloads a yt song, update music
 @client.command()
 async def add(ctx):
-    print("TODO")
+    args = ctx.message.content.split(" ")[1:]
+    print(args)
+    if len(args) != 2:
+        await ctx.send("Usage: ```.add {url} {name}```")
+    else:
+        link = args[0]
+        name = args[1]
+        subprocess.call(['python3', 'musicDownloader.py', link, name])
+
+        await read(ctx)
+        queue = loadQueue()
+
+        queue['songs'].insert(0, name + '.mp3')
+        #print(queue['songs'])
+
+        writeQueue(queue)
+
+
     #download a youtube link
 
 # play yt link without downloading
