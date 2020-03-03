@@ -477,6 +477,7 @@ async def add(ctx):
         link = args[0]
         name = args[1]
         subprocess.call(['python3', 'musicDownloader.py', link, name])
+        subprocess.call(['python3', 'music/musicLogger.py', link, 'music/'])
 
         await read(ctx)
         queue = loadQueue()
