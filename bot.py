@@ -41,8 +41,7 @@ client = commands.Bot(command_prefix = PREFIX)
 
 voiceChannel = None
 textChannel = None
-RUNNING = True
-done = False
+normalNext = True
 path = './music/'
 #print(os.listdir(path))
 # song = []
@@ -55,7 +54,9 @@ play_next_song = asyncio.Event()
 
 
 async def audio_player_task():
-    global done
+    global normalNext
+    nomalNext = True
+
     while True:
         print('Go')
         play_next_song.clear()
@@ -74,10 +75,15 @@ async def audio_player_task():
 
         print('Playing and wating')
         await play_next_song.wait()
-        await nextSong()
+        print('Next like normal:', normalNext)
 
+        if normalNext:
+            await nextSong()
+
+        normalNext = False
 def toggle_next():
     client.loop.call_soon_threadsafe(play_next_song.set)
+    normalNext = True
 
 
 @client.command()
@@ -247,12 +253,14 @@ async def kill(ctx):
 # REMOVE, equivalent to skip
 @client.command()
 async def next(ctx):
+    global normalNext
     print(ctx.voice_client)
     again = done()
 
     print(again)
     if again:
         #await nextSong()
+        normalNext = True
         if voiceChannel.is_playing():
             voiceChannel.stop()
         #await playSong(ctx)
@@ -332,14 +340,17 @@ def makeQueueEmbed(shown):
 async def show(ctx):
     await ctx.send(embed=makeQueueEmbed(7))
 
+
 @client.command()
 async def q(ctx):
+    global normalNext
     queue = loadQueue()
     args = ctx.message.content.split(" ")[1:]
     selection = int(args[0])
     print(selection)
 
     if selection > 0:
+        print('Going forward')
         #await ctx.send(queue['past'][selection])
 
         for i in range(abs(selection)):
@@ -347,22 +358,27 @@ async def q(ctx):
 
         await show(ctx)
 
-        await play(ctx)
+        normalNext = False
+
         voiceChannel.stop()
+        await play(ctx)
 
     elif selection < 0:
+        print('Going back')
         #await ctx.send(queue['songs'][selection - 1])
 
-        for i in range(selection):
+        for i in range(abs(selection)):
             queue = previous(queue)
 
+        print(json.dumps(queue, indent=4, sort_keys=True))
         writeQueue(queue)
 
         await show(ctx)
 
-        await play(ctx)
+        normalNext = False
 
         voiceChannel.stop()
+        await play(ctx)
     else:
         await ctx.send('You are an absolute moron')
 
@@ -371,6 +387,7 @@ async def q(ctx):
 async def join(ctx):
     global voiceChannel
     global textChannel
+    global normalNext
     voiceChannel = await ctx.author.voice.channel.connect()
     textChannel = ctx
 
@@ -432,10 +449,10 @@ async def last(ctx):
     print('going back')
     if len(queue['past']) > 0:
         queue = previous(queue)
-        queue = previous(queue)
 
         writeQueue(queue)
 
+        normalNext = False
         voiceChannel.stop()
     else:
         print('trying to do the impossible')
