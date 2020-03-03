@@ -82,6 +82,7 @@ async def audio_player_task():
 
         normalNext = False
 def toggle_next():
+    global normalNext
     client.loop.call_soon_threadsafe(play_next_song.set)
     normalNext = True
 
