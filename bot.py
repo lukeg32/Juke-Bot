@@ -81,10 +81,10 @@ async def audio_player_task():
             await nextSong()
 
         normalNext = True
+
+
 def toggle_next():
-    global normalNext
     client.loop.call_soon_threadsafe(play_next_song.set)
-    #normalNext = True
 
 
 @client.command()
@@ -342,6 +342,7 @@ async def show(ctx):
     await ctx.send(embed=makeQueueEmbed(7))
 
 
+#the q management command
 @client.command()
 async def q(ctx):
     global normalNext
@@ -382,6 +383,12 @@ async def q(ctx):
         await play(ctx)
     else:
         await ctx.send('You are an absolute moron')
+
+@client.command()
+async def c(ctx):
+    #args = ctx.message.content.split(" ")[1:]
+    await ctx.send('Literly nothing')
+
 
 # joins the voice channel user is in, saves textchannel for future msgs
 @client.command()
