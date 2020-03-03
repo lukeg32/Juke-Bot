@@ -41,6 +41,17 @@ def prime():
     with open(path + 'queue.json', 'w') as outFile:
         outFile.write(json.dumps(jsonData, indent=4, sort_keys=True))
 
+def url(link):
+    print('Adding:', link)
+
+    with open(path + 'urlhistory', 'r') as inFile:
+        jsonData = json.load(inFile)
+
+    jsonData.append(link)
+
+    with open(path + 'urlhistory', 'w') as inFile:
+        outFile.write(json.dumps(jsonData, indent=4, sort_keys=True))
+
 
 def main(args):
     global path
@@ -53,6 +64,8 @@ def main(args):
         logMusic()
     elif args[1] == 'queue':
         prime()
+    elif args[1] == 'url':
+        url(args[3])
     else:
         print(args, "Bad args")
 
