@@ -255,14 +255,15 @@ async def kill(ctx):
 # REMOVE, equivalent to skip
 @client.command()
 async def next(ctx):
+    global voiceChannel
     global normalNext
-    print(ctx.voice_client)
     again = done()
 
     print(again)
     if again:
         #await nextSong()
         normalNext = True
+        print(voiceChannel)
         if voiceChannel.is_playing():
             voiceChannel.stop()
         #await playSong(ctx)
@@ -403,8 +404,16 @@ async def c(ctx):
 async def reset(ctx):
     global voiceChannel
     global textChannel
+    global normalNext
+
+    if voiceChannel.is_playing():
+        voiceChannel.stop()
+
+    normalNext = False
     voiceChannel = None
     textChannel = None
+
+    print('setting voice and text to null')
 
 # joins the voice channel user is in, saves textchannel for future msgs
 @client.command()
