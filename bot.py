@@ -118,11 +118,11 @@ def writeQueue(queue):
 
 # runs the music logger to log the mp3 files
 def loadMusic():
-    subprocess.call(['python3', 'music/musicLogger.py', 'log', 'music/'])
+    subprocess.call(['python3', 'music/musicLogger.py', 'log'])
 
 # runs the music logger to make queue
 def makeQueue():
-    subprocess.call(['python3', 'music/musicLogger.py', 'queue', 'music/'])
+    subprocess.call(['python3', 'music/musicLogger.py', 'queue'])
 
 
 # gets the cur song from queue
@@ -332,6 +332,7 @@ def makeQueueEmbed(shown):
 async def show(ctx):
     await ctx.send(embed=makeQueueEmbed(7))
 
+#the queue loader
 @client.command()
 async def q(ctx):
     queue = loadQueue()
@@ -373,6 +374,7 @@ async def join(ctx):
     global textChannel
     voiceChannel = await ctx.author.voice.channel.connect()
     textChannel = ctx
+
 
 # plays a song from queue
 #@client.command()
@@ -469,23 +471,34 @@ async def pause(ctx):
 # downloads a yt song, update music
 @client.command()
 async def add(ctx):
+    print(ctx.message.author)
+
     args = ctx.message.content.split(" ")[1:]
     print(args)
-    if len(args) != 2:
+
+    if len(args) < 2:
         await ctx.send("Usage: ```.add {url} {name}```")
     else:
         link = args[0]
-        name = args[1]
-        subprocess.call(['python3', 'musicDownloader.py', link, name])
-        subprocess.call(['python3', 'music/musicLogger.py', link, 'music/'])
+        name = " ".join(args[1:])
+        print('Name:', name)
 
-        await read(ctx)
-        queue = loadQueue()
+        loggerargs = ['url', link, name]
+        loggerrun = ['python3', 'music/musicLogger.py']
+        exitArgs = subprocess.call(loggerrun + loggerargs)
+        print('exit:', exitArgs)
 
-        queue['songs'].insert(0, name + '.mp3')
-        #print(queue['songs'])
+        if exitArgs == 1:
+            await read(ctx)
+            queue = loadQueue()
 
-        writeQueue(queue)
+            queue['songs'].insert(0, name + '.mp3')
+            #print(queue['songs'])
+
+            writeQueue(queue)
+
+        else:
+            await ctx.send('```Duplicate Found!```')
 
 
     #download a youtube link
