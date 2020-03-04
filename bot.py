@@ -5,6 +5,7 @@ import json
 import discord
 import youtube_dl
 import subprocess
+import random
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -351,8 +352,12 @@ async def q(ctx):
     print(selection)
 
     if selection > 0:
-        print('Going forward')
-        #await ctx.send(queue['past'][selection])
+        if selection > len(queue['songs']):
+            selection = len(queue['songs'])
+            print('Overload going to the end of queue')
+
+        else:
+            print('Going forward')
 
         for i in range(abs(selection)):
             await nextSong(add=False)
@@ -364,9 +369,14 @@ async def q(ctx):
         voiceChannel.stop()
         await play(ctx)
 
+
+
     elif selection < 0:
-        print('Going back')
-        #await ctx.send(queue['songs'][selection - 1])
+        if abs(selection) > len(queue['past']):
+            selection = len(queue['past'])
+
+        else:
+            print('Going back')
 
         for i in range(abs(selection)):
             queue = previous(queue)
@@ -380,6 +390,7 @@ async def q(ctx):
 
         voiceChannel.stop()
         await play(ctx)
+
     else:
         await ctx.send('You are an absolute moron')
 
@@ -388,6 +399,12 @@ async def c(ctx):
     #args = ctx.message.content.split(" ")[1:]
     await ctx.send('Literly nothing')
 
+@client.command()
+async def reset(ctx):
+    global voiceChannel
+    global textChannel
+    voiceChannel = None
+    textChannel = None
 
 # joins the voice channel user is in, saves textchannel for future msgs
 @client.command()
@@ -535,7 +552,20 @@ async def stream(ctx):
 # leave the voice channel
 @client.command()
 async def leave(ctx):
-    await ctx.voice_client.disconnect()
+    global voiceChannel
+    await voiceChannel.disconnect()
+    voiceChannel = None
+    #await ctx.voice_client.disconnect()
+
+
+# shuffle the songs in the future
+@client.command()
+async def shuffle(ctx):
+    queue = loadQueue()
+    random.shuffle(queue['songs'])
+    writeQueue(queue)
+
+    await show(ctx)
 
 
 # add main loop to the list thing, run bot
