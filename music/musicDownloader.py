@@ -17,9 +17,11 @@ ydl_opts = {
         'preferredcodec': 'mp3',
         'preferredquality': '192',
     }],
-    'outtmpl': 'music/' + name + '.%(ext)s'
+    'outtmpl': "music/" + name + '.%(ext)s'
 }
 
 
 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
     ydl.download([link])
+
+
