@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import subprocess
 
 path = ''
 
@@ -41,31 +42,52 @@ def prime():
     with open(path + 'queue.json', 'w') as outFile:
         outFile.write(json.dumps(jsonData, indent=4, sort_keys=True))
 
-def url(link):
+# adds a link to the link list
+# makes new urlhistory if none found
+def url(link, name):
     print('Adding:', link)
+    jsonData = []
 
-    with open(path + 'urlhistory', 'r') as inFile:
-        jsonData = json.load(inFile)
+    if 'urlhistory.json' in os.listdir(path):
+        with open(path + 'urlhistory.json', 'r') as inFile:
+            jsonData = json.load(inFile)
 
-    jsonData.append(link)
 
-    with open(path + 'urlhistory', 'w') as inFile:
-        outFile.write(json.dumps(jsonData, indent=4, sort_keys=True))
+    if not link in jsonData:
+        jsonData.append(link)
+
+        with open(path + 'urlhistory.json', 'w') as outFile:
+            outFile.write(json.dumps(jsonData, indent=4, sort_keys=True))
+
+        subprocess.call(['python3', path + 'musicDownloader.py', link, name])
+
+        sys.exit(1)
+    else:
+        print('Duplicate found')
+        sys.exit(-1)
 
 
 def main(args):
     global path
-    if len(args) == 3:
-        path = args[2]
+    #print('args:', args)
+    if args[0].find('/') != -1:
+        path = args[0].split('/')[0] + '/'
+    else:
+        path = './'
+    #print('path:', path)
 
     if len(args) == 1:
         logMusic()
+
     elif args[1] == 'log':
         logMusic()
+
     elif args[1] == 'queue':
         prime()
+
     elif args[1] == 'url':
-        url(args[3])
+        url(args[2], args[3])
+
     else:
         print(args, "Bad args")
 
