@@ -230,6 +230,7 @@ async def start(ctx):
     if voiceChannel == None:
         await join(ctx)
 
+    await show(ctx)
     await play(ctx)
     await ctx.send("Starting")
 
@@ -406,7 +407,7 @@ async def reset(ctx):
     global textChannel
     global normalNext
 
-    if voiceChannel.is_playing():
+    if ctx.voice_channel.is_playing():
         voiceChannel.stop()
 
     normalNext = False
@@ -562,6 +563,9 @@ async def stream(ctx):
 @client.command()
 async def leave(ctx):
     global voiceChannel
+    global normalNext
+
+    normalNext = False
     await voiceChannel.disconnect()
     voiceChannel = None
     #await ctx.voice_client.disconnect()
