@@ -341,12 +341,7 @@ def makeQueueEmbed(shown):
 async def show(ctx):
     await ctx.send(embed=makeQueueEmbed(7))
 
-<<<<<<< HEAD
-
-#the q management command
-=======
 #the queue loader
->>>>>>> youtube
 @client.command()
 async def q(ctx):
     global normalNext
