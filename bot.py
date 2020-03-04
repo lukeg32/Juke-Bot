@@ -381,7 +381,7 @@ async def q(ctx):
         for i in range(abs(selection)):
             queue = previous(queue)
 
-        print(json.dumps(queue, indent=4, sort_keys=True))
+        #print(json.dumps(queue, indent=4, sort_keys=True))
         writeQueue(queue)
 
         await show(ctx)
