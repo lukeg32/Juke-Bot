@@ -49,9 +49,13 @@ def url(link, name):
         with open(path + 'urlhistory.json', 'r') as inFile:
             jsonData = json.load(inFile)
 
+    duplicate = False
+    for i in jsonData:
+        if link in i[0]:
+            duplicate = True
 
-    if not link in jsonData:
-        jsonData.append(link)
+    if not duplicate:
+        jsonData.append([link, name])
 
         with open(path + 'urlhistory.json', 'w') as outFile:
             outFile.write(json.dumps(jsonData, indent=4, sort_keys=True))
