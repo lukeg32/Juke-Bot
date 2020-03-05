@@ -350,51 +350,57 @@ async def q(ctx):
     global normalNext
     queue = loadQueue()
     args = ctx.message.content.split(" ")[1:]
-    selection = int(args[0])
-    print(selection)
+    if len(args) != 0:
 
-    if selection > 0:
-        if selection > len(queue['songs']):
-            selection = len(queue['songs'])
-            print('Overload going to the end of queue')
+        selection = int(args[0])
+        print(selection)
+
+        if selection > 0:
+            if selection > len(queue['songs']):
+                selection = len(queue['songs'])
+                print('Overload going to the end of queue')
+
+            else:
+                print('Going forward')
+
+            for i in range(abs(selection)):
+                await nextSong(add=False)
+
+            await show(ctx)
+
+            normalNext = False
+
+            voiceChannel.stop()
+            await play(ctx)
+
+
+
+        elif selection < 0:
+            if abs(selection) > len(queue['past']):
+                selection = len(queue['past'])
+
+            else:
+                print('Going back')
+
+            for i in range(abs(selection)):
+                queue = previous(queue)
+
+            #print(json.dumps(queue, indent=4, sort_keys=True))
+            writeQueue(queue)
+
+            await show(ctx)
+
+            normalNext = False
+
+            voiceChannel.stop()
+            await play(ctx)
 
         else:
-            print('Going forward')
-
-        for i in range(abs(selection)):
-            await nextSong(add=False)
-
-        await show(ctx)
-
-        normalNext = False
-
-        voiceChannel.stop()
-        await play(ctx)
-
-
-
-    elif selection < 0:
-        if abs(selection) > len(queue['past']):
-            selection = len(queue['past'])
-
-        else:
-            print('Going back')
-
-        for i in range(abs(selection)):
-            queue = previous(queue)
-
-        #print(json.dumps(queue, indent=4, sort_keys=True))
-        writeQueue(queue)
-
-        await show(ctx)
-
-        normalNext = False
-
-        voiceChannel.stop()
-        await play(ctx)
+            await ctx.send('You are an absolute moron')
 
     else:
-        await ctx.send('You are an absolute moron')
+        print('No args: showing')
+        await show(ctx)
 
 @client.command()
 async def c(ctx):
