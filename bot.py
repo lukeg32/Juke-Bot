@@ -90,7 +90,10 @@ def toggle_next():
 
 @client.command()
 async def play(ctx):
-    await addToQueue(getSong(), "None")
+    if voiceChannel != None:
+        await addToQueue(getSong(), "None")
+    else:
+        await ctx.send("```Not connected```")
 
 @client.command()
 async def addToQueue(song, url):
@@ -230,9 +233,17 @@ async def start(ctx):
     if voiceChannel == None:
         await join(ctx)
 
-    await show(ctx)
-    await play(ctx)
-    await ctx.send("Starting")
+    if voiceChannel.is_paused():
+        await ctx.send("```Resuming song!```")
+        voiceChannel.resume()
+
+    elif not voiceChannel.is_playing():
+        await show(ctx)
+        await play(ctx)
+        await ctx.send("Starting")
+
+    else:
+        await ctx.send("```Alreading Playing!```")
 
 # reads the directory and writes the songs to json
 @client.command()
@@ -261,7 +272,7 @@ async def next(ctx):
     again = done()
 
     print(again)
-    if again:
+    if again and voiceChannel != None:
         #await nextSong()
         normalNext = True
         print(voiceChannel)
@@ -269,8 +280,11 @@ async def next(ctx):
             voiceChannel.stop()
         #await playSong(ctx)
 
-    else:
+    elif not again and not voiceChannel == None:
         await ctx.send("Queue ended")
+
+    else:
+        await ctx.send("```Not Connected!```")
 
 # sends the current song or none
 @client.command()
