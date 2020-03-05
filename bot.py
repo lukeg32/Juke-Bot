@@ -5,6 +5,7 @@ import json
 import discord
 import youtube_dl
 import subprocess
+from random import choice
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -385,8 +386,64 @@ async def q(ctx):
 
 @client.command()
 async def c(ctx):
+    pollEmoji = ['👍', '👎']
+    audioControlsList = ['➡️', '⬅️', '▶️', '▶️']
+    numberList = ['0️⃣','1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
     #args = ctx.message.content.split(" ")[1:]
-    await ctx.send('Literly nothing')
+    msg = await ctx.send('Literally nothing')
+    #emoji = get(ctx.message.server.emojis, name=":one:")
+    for i in numberList:
+        await msg.add_reaction(i)
+
+    for i in emojiList:
+        await msg.add_reaction(i)
+
+polls = []
+@client.command()
+async def poll(ctx):
+    global polls
+    pollEmoji = ['👍', '👎']
+    user = choice(ctx.message.channel.guild.members)
+
+
+    txt = 'Kill %s' % user.mention
+    msg = await ctx.send('Kill %s' % user.mention)
+    polls.append([msg.id, 0, 0, 3, txt])
+
+    for i in pollEmoji:
+        await msg.add_reaction(i)
+
+@client.event
+async def on_reaction_add(reaction, user):
+    global polls
+    print(polls)
+    for i in range(len(polls)):
+        if reaction.message.id == polls[i][0] and not user.bot:
+#            print(reaction, '👎', reaction.emoji == '👎')
+#            print(reaction, '👍', reaction.emoji == '👍')
+            if reaction.emoji == '👎':
+                polls[i][2] += 1
+
+            elif reaction.emoji == '👍':
+                polls[i][1] += 1
+
+    for i in polls:
+        if i[1] >= i[3]:
+            await reaction.message.channel.send('We shall ' + i[4] + "!")
+
+        elif i[2] >= i[3]:
+            await reaction.message.channel.send("We shall not " + i[4] + "!")
+
+    print(reaction)
+    print(user)
+    print(polls)
+
+@client.event
+async def on_reaction_remove(reaction, user):
+    global poll
+    print(poll)
+
+
 
 
 # joins the voice channel user is in, saves textchannel for future msgs
