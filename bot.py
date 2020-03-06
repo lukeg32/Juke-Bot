@@ -208,6 +208,12 @@ async def on_ready():
         f'{guild.name}(id : {guild.id})'
     )
 
+@client.event
+async def on_message(message):
+    if (message.author != message.author.bot and
+        message.content.startswith(PREFIX)):
+        print(message.content)
+
 # on message do stuff
 #@client.event
 #async def on_message(message):
@@ -240,7 +246,8 @@ async def start(ctx):
     elif not voiceChannel.is_playing():
         await show(ctx)
         await play(ctx)
-        await ctx.send("Starting")
+        #await ctx.send("Starting")
+        print('Starting normally')
 
     else:
         await ctx.send("```Alreading Playing!```")
