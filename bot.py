@@ -547,17 +547,22 @@ async def pause(ctx):
 
 # downloads a yt song, update music
 @client.command()
-async def add(ctx):
-    print(ctx.message.author)
+async def add(ctx, link, *, name=None):
+    print('#' * 5, ctx.message.author)
 
-    args = ctx.message.content.split(" ")[1:]
-    print(args)
+    if name == None:
+        await ctx.send("Usage: ```%sadd {url} {name}```" % PREFIX)
 
-    if len(args) < 2:
-        await ctx.send("Usage: ```.add {url} {name}```")
+    elif link.find('https') == -1:
+        print('forcing to next')
+        queue = loadQueue()
+
+        if queue['songs'][0] != name + '.mp3':
+            queue['songs'].insert(0, name + '.mp3')
+
+            writeQueue(queue)
+
     else:
-        link = args[0]
-        name = " ".join(args[1:])
         print('Name:', name)
 
         loggerargs = ['url', link, name]
