@@ -208,11 +208,11 @@ async def on_ready():
         f'{guild.name}(id : {guild.id})'
     )
 
-@client.event
-async def on_message(message):
-    if (message.author != message.author.bot and
-        message.content.startswith(PREFIX)):
-        print(message.content)
+#@client.event
+#async def on_message(message):
+#    if (message.author != message.author.bot and
+#        message.content.startswith(PREFIX)):
+#        print(message.content)
 
 # on message do stuff
 #@client.event
