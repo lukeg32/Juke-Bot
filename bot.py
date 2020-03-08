@@ -428,13 +428,16 @@ async def c(ctx):
     #args = ctx.message.content.split(" ")[1:]
     await ctx.send('Literly nothing')
 
+
 @client.command()
 async def reset(ctx):
     global voiceChannel
     global textChannel
     global normalNext
+    await leave(ctx)
 
-    if ctx.voice_channel.is_playing():
+    if ctx.voice_client != None and ctx.voice_client.is_playing():
+        ctx.voice_client.stop()
         voiceChannel.stop()
 
     normalNext = False
@@ -598,6 +601,7 @@ async def leave(ctx):
     global normalNext
 
     normalNext = False
+    await ctx.voice_client.disconnect()
     await voiceChannel.disconnect()
     voiceChannel = None
     #await ctx.voice_client.disconnect()
