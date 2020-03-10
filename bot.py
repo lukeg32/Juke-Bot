@@ -44,6 +44,7 @@ DEFAULT_VIEW = [4, 1, 4]
 voiceChannel = None
 textChannel = None
 normalNext = True
+inform = True
 path = './music/'
 #print(os.listdir(path))
 # song = []
@@ -57,6 +58,7 @@ play_next_song = asyncio.Event()
 
 async def audio_player_task():
     global normalNext
+    global inform
     nomalNext = True
 
     while True:
@@ -72,7 +74,7 @@ async def audio_player_task():
         else:
             print(current)
 
-        if current[0][:-4] != "":
+        if current[0][:-4] != "" and inform:
             await textChannel.send('Now playing: {}'.format(current[0][:-4]))
 
         print('Playing and wating')
@@ -531,6 +533,7 @@ async def on_reaction_add(reaction, user):
     audioControlsList = ['⬅️', '➡️', '▶️', '⏸️', '⏹️', '⏪', '⏩']
 
     if reaction.message.id == controlID[0]:
+        global inform
         if reaction.emoji == audioControlsList[0]:
             controlID[1] -= 2
 
@@ -539,26 +542,29 @@ async def on_reaction_add(reaction, user):
 
         elif reaction.emoji == audioControlsList[2]:
             await resume(controlID[3])
+            inform = False
             print('resume')
 
         elif reaction.emoji == audioControlsList[3]:
             await pause(controlID[3])
+            inform = False
             print('pause')
 
         elif reaction.emoji == audioControlsList[4]:
             print('start')
+            inform = False
             await start(controlID[3])
 
         elif reaction.emoji == audioControlsList[5]:
             print('last')
+            inform = False
             await last(controlID[3])
+            await play(controlID[3])
 
         elif reaction.emoji == audioControlsList[6]:
             print('next')
-            await next(controlID[3])
-
-
-            #await resume(reaction.message.context)
+            inform = False
+            voiceChannel.stop()
 
 
         #print('the end is here')
@@ -695,11 +701,14 @@ async def resume(ctx):
 
     vc.resume()
     await updateControls(ctx, 'play')
-    await ctx.send(f'**`{ctx.author}`**: Resumed song!')
+
+    if inform:
+        await ctx.send(f'**`{ctx.author}`**: Resumed song!')
 
 # pauses a playing song
 @client.command()
 async def pause(ctx):
+    global inform
     print('pasusef')
     vc = ctx.voice_client
 
@@ -709,7 +718,9 @@ async def pause(ctx):
 
     vc.pause()
     await updateControls(ctx, 'pause')
-    await ctx.send(f'**`{ctx.author}`**: Paused song!')
+
+    if inform:
+        await ctx.send(f'**`{ctx.author}`**: Paused song!')
 
 # downloads a yt song, update music
 @client.command()
